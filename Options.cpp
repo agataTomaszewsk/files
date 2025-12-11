@@ -1,15 +1,13 @@
 #include "Options.h"
 
-// --- Implementacja klasy bazowej Option ---
+//  klasa bazowa Option
 
 Option::Option(double strikePrice, double maturityTime) 
     : strike(strikePrice), maturity(maturityTime) {}
 
 Option::~Option() {}
 
-// Implementacja metody przeciążonej (z dyskontowaniem)
 double Option::payoff(double spotPrice, double discountFactor) const {
-    // Wywołuje wersję wirtualną (specyficzną dla Call lub Put) i dyskontuje
     return payoff(spotPrice) * discountFactor;
 }
 
@@ -29,7 +27,7 @@ void Option::setMaturity(double t) {
     maturity = t;
 }
 
-// --- Implementacja EuropeanCall ---
+// Implementacja EuropeanCall
 
 EuropeanCall::EuropeanCall(double strikePrice, double maturityTime)
     : Option(strikePrice, maturityTime) {}
@@ -39,7 +37,7 @@ double EuropeanCall::payoff(double spotPrice) const {
     return std::max(spotPrice - strike, 0.0);
 }
 
-// --- Implementacja EuropeanPut ---
+// Implementacja EuropeanPut
 
 EuropeanPut::EuropeanPut(double strikePrice, double maturityTime)
     : Option(strikePrice, maturityTime) {}
