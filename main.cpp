@@ -1,69 +1,62 @@
 #define DEBUG 1
 #include "testing.h"
-#include "Options.h"
+#include "TradingSystem.h"
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
-void testCallOption() {
-    INFO("Testowanie European Call Option");
+void testSignalGenerator() {
+    INFO("Testowanie SignalGenerator");
+    SignalGenerator gen;
 
-    double strike = 100.0;
-    EuropeanCall call(strike, 1.0);
-
-    // Scenariusz 1: Spot > Strike (In the money)
-    // Cena 120, Strike 100 -> Zysk 20
-    ASSERT_APPROX_EQUAL(call.payoff(120.0), 20.0, 0.01);
-
-    // Scenariusz 2: Spot < Strike (Out of the money)
-    // Cena 80, Strike 100 -> Zysk 0
-    ASSERT_APPROX_EQUAL(call.payoff(80.0), 0.0, 0.01);
-
-    // Scenariusz 3: Test przeciążenia (z dyskontowaniem)
-    // Payoff 20, Discount Factor 0.9 -> Wynik 18.0
-    ASSERT_APPROX_EQUAL(call.payoff(120.0, 0.9), 18.0, 0.01);
+    // Testujemy wielokrotnie, aby upewnić się, że wynik to zawsze -1 lub 1
+    for(int i = 0; i < 10; i++) {
+        int sig = gen.generateSignal(100.0);
+        // Sprawdzamy czy sygnał jest poprawny (musi być 1 albo -1)
+        bool isValid = (sig == 1 || sig == -1);
+        ASSERT(isValid);
+    }
 }
 
-void testPutOption() {
-    INFO("Testowanie European Put Option");
+void testTradingStrategy() {
+    INFO("Testowanie TradingStrategy");
 
-    double strike = 100.0;
-    EuropeanPut put(strike, 1.0);
+    // Przygotowanie danych
+    std::vector<double> marketPrices = {100.5, 101.0, 99.5, 102.0};
+    TradingStrategy strategy(marketPrices);
 
-    // Scenariusz 1: Spot < Strike (In the money)
-    // Cena 80, Strike 100 -> Zysk 20
-    ASSERT_APPROX_EQUAL(put.payoff(80.0), 20.0, 0.01);
+    // Sprawdzenie gettera
+    ASSERT(strategy.getPrices().size() == 4);
+    ASSERT_APPROX_EQUAL(strategy.getPrices()[0], 100.5, 0.01);
 
-    // Scenariusz 2: Spot > Strike (Out of the money)
-    // Cena 120, Strike 100 -> Zysk 0
-    ASSERT_APPROX_EQUAL(put.payoff(120.0), 0.0, 0.01);
-}
+    // Wykonanie strategii
+    strategy.execute();
 
-void testPolymorphism() {
-    INFO("Testowanie polimorfizmu Opcji");
+    // Sprawdzenie czy wygenerowano tyle sygnałów ile było cen
+    std::vector<int> results = strategy.getSignals();
+    ASSERT(results.size() == 4);
 
-    Option* opt1 = new EuropeanCall(100.0, 0.5);
-    Option* opt2 = new EuropeanPut(100.0, 0.5);
+    // Sprawdzenie czy każdy wynik jest poprawny (-1 lub 1)
+    for(int sig : results) {
+        bool isValid = (sig == 1 || sig == -1);
+        ASSERT(isValid);
+    }
 
-    // Sprawdzamy dla ceny spot = 110
-    // Call (110 - 100) = 10
-    // Put (100 - 110) < 0 -> 0
-    ASSERT_APPROX_EQUAL(opt1->payoff(110.0), 10.0, 0.01);
-    ASSERT_APPROX_EQUAL(opt2->payoff(110.0), 0.0, 0.01);
-
-    // Sprawdzamy settery przez wskaźnik bazowy
-    opt1->setStrike(105.0);
-    // Call (110 - 105) = 5
-    ASSERT_APPROX_EQUAL(opt1->payoff(110.0), 5.0, 0.01);
-
-    delete opt1;
-    delete opt2;
+    // Test Settera
+    std::vector<double> newPrices = {50.0, 60.0};
+    strategy.setPrices(newPrices);
+    strategy.execute();
+    
+    ASSERT(strategy.getSignals().size() == 2);
 }
 
 int main() {
+    // Inicjalizacja generatora liczb losowych
+    std::srand(std::time(0));
     setDebugEnabled(true);
 
-    TEST(testCallOption);
-    TEST(testPutOption);
-    TEST(testPolymorphism);
+    TEST(testSignalGenerator);
+    TEST(testTradingStrategy);
 
     return 0;
 }
