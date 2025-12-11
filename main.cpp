@@ -1,68 +1,68 @@
 #define DEBUG 1
 #include "testing.h"
-#include "Shapes.h"
+#include "Options.h"
 #include <iostream>
 
-void testCircle() {
-    INFO("Testowanie klasy Circle");
+void testCallOption() {
+    INFO("Testowanie European Call Option");
 
-    double r = 5.0;
-    Circle c(r);
+    double strike = 100.0;
+    EuropeanCall call(strike, 1.0);
 
-    // Oczekiwane pole: pi * 5^2 = ~78.539
-    double expectedArea = 3.14159 * 25;
-    // Oczekiwany obwód: 2 * pi * 5 = ~31.415
-    double expectedPerim = 2 * 3.14159 * 5;
+    // Scenariusz 1: Spot > Strike (In the money)
+    // Cena 120, Strike 100 -> Zysk 20
+    ASSERT_APPROX_EQUAL(call.payoff(120.0), 20.0, 0.01);
 
-    ASSERT_APPROX_EQUAL(c.area(), expectedArea, 0.01);
-    ASSERT_APPROX_EQUAL(c.perimeter(), expectedPerim, 0.01);
+    // Scenariusz 2: Spot < Strike (Out of the money)
+    // Cena 80, Strike 100 -> Zysk 0
+    ASSERT_APPROX_EQUAL(call.payoff(80.0), 0.0, 0.01);
 
-    // Test settera
-    c.setRadius(10.0);
-    ASSERT_APPROX_EQUAL(c.area(), 314.159, 0.1);
+    // Scenariusz 3: Test przeciążenia (z dyskontowaniem)
+    // Payoff 20, Discount Factor 0.9 -> Wynik 18.0
+    ASSERT_APPROX_EQUAL(call.payoff(120.0, 0.9), 18.0, 0.01);
 }
 
-void testRectangle() {
-    INFO("Testowanie klasy Rectangle");
+void testPutOption() {
+    INFO("Testowanie European Put Option");
 
-    Rectangle rect(4.0, 5.0);
+    double strike = 100.0;
+    EuropeanPut put(strike, 1.0);
 
-    // Pole: 4 * 5 = 20
-    ASSERT_APPROX_EQUAL(rect.area(), 20.0, 0.01);
-    // Obwód: 2 * (4 + 5) = 18
-    ASSERT_APPROX_EQUAL(rect.perimeter(), 18.0, 0.01);
+    // Scenariusz 1: Spot < Strike (In the money)
+    // Cena 80, Strike 100 -> Zysk 20
+    ASSERT_APPROX_EQUAL(put.payoff(80.0), 20.0, 0.01);
 
-    // Test setterów
-    rect.setWidth(2.0);
-    rect.setHeight(3.0);
-    // Nowe pole: 2 * 3 = 6
-    ASSERT_APPROX_EQUAL(rect.area(), 6.0, 0.01);
+    // Scenariusz 2: Spot > Strike (Out of the money)
+    // Cena 120, Strike 100 -> Zysk 0
+    ASSERT_APPROX_EQUAL(put.payoff(120.0), 0.0, 0.01);
 }
 
 void testPolymorphism() {
-    INFO("Testowanie polimorfizmu Shapes");
+    INFO("Testowanie polimorfizmu Opcji");
 
-    // Tworzymy tablicę wskaźników do klasy bazowej
-    Shape* shapes[2];
-    shapes[0] = new Circle(1.0);       // Promień 1
-    shapes[1] = new Rectangle(2.0, 3.0); // 2x3
+    Option* opt1 = new EuropeanCall(100.0, 0.5);
+    Option* opt2 = new EuropeanPut(100.0, 0.5);
 
-    // Sprawdzamy pole koła (pi * 1^2 = ~3.14)
-    ASSERT_APPROX_EQUAL(shapes[0]->area(), 3.14159, 0.001);
+    // Sprawdzamy dla ceny spot = 110
+    // Call (110 - 100) = 10
+    // Put (100 - 110) < 0 -> 0
+    ASSERT_APPROX_EQUAL(opt1->payoff(110.0), 10.0, 0.01);
+    ASSERT_APPROX_EQUAL(opt2->payoff(110.0), 0.0, 0.01);
 
-    // Sprawdzamy pole prostokąta (2 * 3 = 6)
-    ASSERT_APPROX_EQUAL(shapes[1]->area(), 6.0, 0.001);
+    // Sprawdzamy settery przez wskaźnik bazowy
+    opt1->setStrike(105.0);
+    // Call (110 - 105) = 5
+    ASSERT_APPROX_EQUAL(opt1->payoff(110.0), 5.0, 0.01);
 
-    // Czyszczenie pamięci
-    delete shapes[0];
-    delete shapes[1];
+    delete opt1;
+    delete opt2;
 }
 
 int main() {
     setDebugEnabled(true);
 
-    TEST(testCircle);
-    TEST(testRectangle);
+    TEST(testCallOption);
+    TEST(testPutOption);
     TEST(testPolymorphism);
 
     return 0;
