@@ -1,12 +1,12 @@
 #include "Shapes.h"
 #include <iostream>
 
-// Definicja PI w razie gdyby kompilator nie miał M_PI (np. starsze wersje MSVC)
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-// --- Implementacja Circle ---
+// Implementacja Circle 
 
 Circle::Circle(double r) : radius(r) {}
 
@@ -30,7 +30,7 @@ void Circle::setRadius(double r) {
     }
 }
 
-// --- Implementacja Rectangle ---
+// Implementacja Rectangle 
 
 Rectangle::Rectangle(double w, double h) : width(w), height(h) {}
 
