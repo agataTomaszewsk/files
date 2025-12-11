@@ -1,57 +1,69 @@
-#define DEBUG 1 
+#define DEBUG 1
 #include "testing.h"
-#include "Instruments.h"
-#include "Portfolio.h"
+#include "Shapes.h"
 #include <iostream>
 
-// --- Poprzednie testy ---
-void testStock() {
-    INFO("Testowanie klasy Stock");
-    Stock s("NVDA", 450.0);
-    ASSERT_APPROX_EQUAL(s.price(), 450.0, 0.01);
+void testCircle() {
+    INFO("Testowanie klasy Circle");
+
+    double r = 5.0;
+    Circle c(r);
+
+    // Oczekiwane pole: pi * 5^2 = ~78.539
+    double expectedArea = 3.14159 * 25;
+    // Oczekiwany obwód: 2 * pi * 5 = ~31.415
+    double expectedPerim = 2 * 3.14159 * 5;
+
+    ASSERT_APPROX_EQUAL(c.area(), expectedArea, 0.01);
+    ASSERT_APPROX_EQUAL(c.perimeter(), expectedPerim, 0.01);
+
+    // Test settera
+    c.setRadius(10.0);
+    ASSERT_APPROX_EQUAL(c.area(), 314.159, 0.1);
 }
 
-void testBond() {
-    INFO("Testowanie klasy Bond");
-    Bond b("US_TREASURY", 1000.0);
-    ASSERT_APPROX_EQUAL(b.price(), 1000.0, 0.01);
+void testRectangle() {
+    INFO("Testowanie klasy Rectangle");
+
+    Rectangle rect(4.0, 5.0);
+
+    // Pole: 4 * 5 = 20
+    ASSERT_APPROX_EQUAL(rect.area(), 20.0, 0.01);
+    // Obwód: 2 * (4 + 5) = 18
+    ASSERT_APPROX_EQUAL(rect.perimeter(), 18.0, 0.01);
+
+    // Test setterów
+    rect.setWidth(2.0);
+    rect.setHeight(3.0);
+    // Nowe pole: 2 * 3 = 6
+    ASSERT_APPROX_EQUAL(rect.area(), 6.0, 0.01);
 }
 
-// --- NOWY TEST DLA ZADANIA ---
-void testPortfolio() {
-    INFO("Testowanie klasy Portfolio");
+void testPolymorphism() {
+    INFO("Testowanie polimorfizmu Shapes");
 
-    // Tworzymy portfel na stosie (automatycznie usunie się na końcu funkcji)
-    Portfolio myPortfolio;
+    // Tworzymy tablicę wskaźników do klasy bazowej
+    Shape* shapes[2];
+    shapes[0] = new Circle(1.0);       // Promień 1
+    shapes[1] = new Rectangle(2.0, 3.0); // 2x3
 
-    // Tworzymy instrumenty dynamicznie (new)
-    // Portfolio przejmuje odpowiedzialność za ich usunięcie (ownership)
-    myPortfolio.addInstrument(new Stock("APPLE", 150.0));
-    myPortfolio.addInstrument(new Stock("TESLA", 200.0));
-    myPortfolio.addInstrument(new Bond("PL_BOND", 1000.0));
+    // Sprawdzamy pole koła (pi * 1^2 = ~3.14)
+    ASSERT_APPROX_EQUAL(shapes[0]->area(), 3.14159, 0.001);
 
-    // Wyświetlamy zawartość
-    myPortfolio.display();
+    // Sprawdzamy pole prostokąta (2 * 3 = 6)
+    ASSERT_APPROX_EQUAL(shapes[1]->area(), 6.0, 0.001);
 
-    // Sprawdzamy łączną wartość (150 + 200 + 1000 = 1350)
-    ASSERT_APPROX_EQUAL(myPortfolio.totalValue(), 1350.0, 0.01);
-
-    // Test usuwania instrumentu
-    myPortfolio.removeInstrument("TESLA");
-    
-    // Sprawdzamy wartość po usunięciu (150 + 1000 = 1150)
-    ASSERT_APPROX_EQUAL(myPortfolio.totalValue(), 1150.0, 0.01);
-
-    std::cout << "Po usunieciu TESLA:\n";
-    myPortfolio.display();
+    // Czyszczenie pamięci
+    delete shapes[0];
+    delete shapes[1];
 }
 
 int main() {
     setDebugEnabled(true);
 
-    TEST(testStock);
-    TEST(testBond);
-    TEST(testPortfolio); // Uruchomienie nowego testu
+    TEST(testCircle);
+    TEST(testRectangle);
+    TEST(testPolymorphism);
 
     return 0;
 }
