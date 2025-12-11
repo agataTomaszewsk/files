@@ -1,9 +1,8 @@
 #include "Instruments.h"
 
-// --- Implementacja Instrument ---
+//Implementacja Instrumentu
 
 Instrument::Instrument(const std::string& sym) : symbol(sym) {}
-
 Instrument::~Instrument() {}
 
 std::string Instrument::getSymbol() const {
@@ -14,22 +13,17 @@ void Instrument::setSymbol(const std::string& sym) {
     symbol = sym;
 }
 
-// --- Implementacja Stock ---
-
+// Implementacja Stock 
 Stock::Stock(const std::string& sym, double p) : Instrument(sym), sharePrice(p) {}
-
 double Stock::price() const {
     return sharePrice;
 }
-
 void Stock::setPrice(double p) {
     sharePrice = p;
 }
 
-// --- Implementacja Bond ---
-
+//Implementacja Bond
 Bond::Bond(const std::string& sym, double val) : Instrument(sym), faceValue(val) {}
-
 double Bond::price() const {
     return faceValue;
 }
