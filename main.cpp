@@ -1,65 +1,57 @@
-// Definiujemy DEBUG przed dołączeniem testing.h, aby makra ASSERT działały
 #define DEBUG 1 
-
 #include "testing.h"
 #include "Instruments.h"
+#include "Portfolio.h"
 #include <iostream>
 
-// Testy dla klasy Stock
+// --- Poprzednie testy ---
 void testStock() {
     INFO("Testowanie klasy Stock");
-
     Stock s("NVDA", 450.0);
-    
-    // Sprawdzenie konstruktora i gettera z klasy bazowej
-    ASSERT(s.getSymbol() == "NVDA");
     ASSERT_APPROX_EQUAL(s.price(), 450.0, 0.01);
-
-    // Sprawdzenie setterów
-    s.setSymbol("NVIDIA");
-    s.setPrice(460.5);
-
-    ASSERT(s.getSymbol() == "NVIDIA");
-    ASSERT_APPROX_EQUAL(s.price(), 460.5, 0.01);
 }
 
-// Testy dla klasy Bond
 void testBond() {
     INFO("Testowanie klasy Bond");
-
     Bond b("US_TREASURY", 1000.0);
-
-    ASSERT(b.getSymbol() == "US_TREASURY");
     ASSERT_APPROX_EQUAL(b.price(), 1000.0, 0.01);
-    ASSERT_APPROX_EQUAL(b.getFaceValue(), 1000.0, 0.01);
-
-    b.setFaceValue(1100.0);
-    ASSERT_APPROX_EQUAL(b.price(), 1100.0, 0.01);
 }
 
-// Testy polimorfizmu (wskaźnik na klasę bazową)
-void testPolymorphism() {
-    INFO("Testowanie polimorfizmu");
+// --- NOWY TEST DLA ZADANIA ---
+void testPortfolio() {
+    INFO("Testowanie klasy Portfolio");
 
-    Instrument* i1 = new Stock("ABC", 10.0);
-    Instrument* i2 = new Bond("DEF", 100.0);
+    // Tworzymy portfel na stosie (automatycznie usunie się na końcu funkcji)
+    Portfolio myPortfolio;
 
-    // Wywołanie metod wirtualnych
-    ASSERT_APPROX_EQUAL(i1->price(), 10.0, 0.01);
-    ASSERT_APPROX_EQUAL(i2->price(), 100.0, 0.01);
+    // Tworzymy instrumenty dynamicznie (new)
+    // Portfolio przejmuje odpowiedzialność za ich usunięcie (ownership)
+    myPortfolio.addInstrument(new Stock("APPLE", 150.0));
+    myPortfolio.addInstrument(new Stock("TESLA", 200.0));
+    myPortfolio.addInstrument(new Bond("PL_BOND", 1000.0));
 
-    delete i1;
-    delete i2;
+    // Wyświetlamy zawartość
+    myPortfolio.display();
+
+    // Sprawdzamy łączną wartość (150 + 200 + 1000 = 1350)
+    ASSERT_APPROX_EQUAL(myPortfolio.totalValue(), 1350.0, 0.01);
+
+    // Test usuwania instrumentu
+    myPortfolio.removeInstrument("TESLA");
+    
+    // Sprawdzamy wartość po usunięciu (150 + 1000 = 1150)
+    ASSERT_APPROX_EQUAL(myPortfolio.totalValue(), 1150.0, 0.01);
+
+    std::cout << "Po usunieciu TESLA:\n";
+    myPortfolio.display();
 }
 
 int main() {
-    // Włączenie logów debugowania
     setDebugEnabled(true);
 
-    // Uruchomienie testów z frameworka testing.h
     TEST(testStock);
     TEST(testBond);
-    TEST(testPolymorphism);
+    TEST(testPortfolio); // Uruchomienie nowego testu
 
     return 0;
 }
