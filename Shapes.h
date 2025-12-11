@@ -1,13 +1,11 @@
 #pragma once
 #include <cmath>
 
-// Klasa bazowa (abstrakcyjna)
+// Klasa bazowa
 class Shape {
 public:
-    // Wirtualny destruktor jest konieczny przy polimorfizmie
-    virtual ~Shape() {}
 
-    // Metody czysto wirtualne (= 0)
+    virtual ~Shape() {}
     virtual double area() const = 0;
     virtual double perimeter() const = 0;
 };
@@ -20,11 +18,9 @@ private:
 public:
     Circle(double r);
     
-    // Nadpisujemy metody bazowe
     double area() const override;
     double perimeter() const override;
 
-    // Gettery i Settery
     double getRadius() const;
     void setRadius(double r);
 };
@@ -38,11 +34,9 @@ private:
 public:
     Rectangle(double w, double h);
 
-    // Nadpisujemy metody bazowe
     double area() const override;
     double perimeter() const override;
 
-    // Gettery i Settery
     double getWidth() const;
     void setWidth(double w);
     
