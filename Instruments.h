@@ -8,16 +8,14 @@ protected:
 
 public:
     Instrument(const std::string& sym);
-    virtual ~Instrument(); // Wirtualny destruktor
+    virtual ~Instrument(); 
 
-    virtual double price() const = 0; // Metoda czysto wirtualna
-
-    // Gettery i Settery
+    virtual double price() const = 0; 
     std::string getSymbol() const;
     void setSymbol(const std::string& sym);
 };
 
-// Klasa pochodna: Akcja
+// Klasa pochodna dla Akcji
 class Stock : public Instrument {
 private:
     double sharePrice;
@@ -30,7 +28,7 @@ public:
     void setPrice(double p);
 };
 
-// Klasa pochodna: Obligacja
+// Klasa pochodna dla Obligacji
 class Bond : public Instrument {
 private:
     double faceValue;
