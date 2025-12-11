@@ -17,20 +17,16 @@ class TradingStrategy {
 private:
     std::vector<double> prices;
     SignalGenerator generator;
-    std::vector<int> signals; // Przechowuje wygenerowane sygnały
-
+    std::vector<int> signals; 
 public:
-    // Konstruktor przyjmujący wektor cen
+   
     TradingStrategy(const std::vector<double>& p);
     ~TradingStrategy();
 
-    // Główna metoda wykonująca strategię
     void execute();
 
-    // Getters i Setters
     void setPrices(const std::vector<double>& p);
     std::vector<double> getPrices() const;
 
-    // Metoda pomocnicza do pobrania wyników (dla testów)
     std::vector<int> getSignals() const;
 };
